@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
-const Goal = require('./models/goal');
+const Task = require('./models/task');
 
 const app = express();
 
@@ -26,65 +26,73 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/goals', async (req, res) => {
-  console.log('TRYING TO FETCH GOALS');
+app.get('/tasks', async (req, res) => {
+  console.log('TRYING TO FETCH TASKS');
   try {
-    const goals = await Goal.find();
+    const tasks = await Task.find();
     res.status(200).json({
-      goals: goals.map((goal) => ({
-        id: goal.id,
-        text: goal.text,
+      tasks: tasks.map((task) => ({
+        id: task.id,
+        name: task.name,
+        complete: task.complete
       })),
     });
-    console.log('FETCHED GOALS');
+    console.log('FETCHED TASKS');
   } catch (err) {
-    console.error('ERROR FETCHING GOALS');
+    console.error('ERROR FETCHING task');
     console.error(err.message);
-    res.status(500).json({ message: 'Failed to load goals.' });
+    res.status(500).json({ message: 'Failed to load tasks.' });
   }
 });
 
-app.post('/goals', async (req, res) => {
-  console.log('TRYING TO STORE GOAL');
-  const goalText = req.body.text;
+app.post('/tasks', async (req, res) => {
+  console.log('TRYING TO STORE NEW TASK');
+  const taskName = req.body.name;
+  const taskComplete = req.body.complete;
 
-  if (!goalText || goalText.trim().length === 0) {
+  if (!taskName || taskName.trim().length === 0) {
     console.log('INVALID INPUT - NO TEXT');
-    return res.status(422).json({ message: 'Invalid goal text.' });
+    return res.status(422).json({ message: 'Invalid task name.' });
+  }
+  // add validation of taskComplete
+  if (!taskComplete) {
+    console.log('INVALID INPUT - NO TASK COMPLETE STATUS');
+    return res.status(422).json({ message: 'Invalid task complete status.' });
   }
 
-  const goal = new Goal({
-    text: goalText,
+  const task = new Task({
+    name: taskName,
+    complete: taskComplete
   });
 
   try {
-    await goal.save();
+    await task.save();
     res
       .status(201)
-      .json({ message: 'Goal saved', goal: { id: goal.id, text: goalText } });
-    console.log('STORED NEW GOAL');
+      .json({ message: 'Task saved', task: { id: task.id, name: taskName, complete: taskComplete } });
+    console.log('STORED NEW TASK');
   } catch (err) {
-    console.error('ERROR FETCHING GOALS');
+    console.error('ERROR FETCHING TASKS');
     console.error(err.message);
-    res.status(500).json({ message: 'Failed to save goal.' });
+    res.status(500).json({ message: 'Failed to save task.' });
   }
 });
 
-app.delete('/goals/:id', async (req, res) => {
-  console.log('TRYING TO DELETE GOAL');
+app.delete('/tasks/:id', async (req, res) => {
+  console.log('TRYING TO DELETE TASK');
   try {
-    await Goal.deleteOne({ _id: req.params.id });
-    res.status(200).json({ message: 'Deleted goal!' });
-    console.log('DELETED GOAL');
+    await Task.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: 'Deleted task!' });
+    console.log('DELETED TASK');
   } catch (err) {
-    console.error('ERROR FETCHING GOALS');
+    console.error('ERROR FETCHING TASKS');
     console.error(err.message);
-    res.status(500).json({ message: 'Failed to delete goal.' });
+    res.status(500).json({ message: 'Failed to delete task.' });
   }
 });
 
 mongoose.connect(
-  `mongodb://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@mongodb:27017/course-goals?authSource=admin`,
+  `mongodb://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@mongodb:27017/task-list?authSource=admin`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,

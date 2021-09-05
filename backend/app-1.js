@@ -26,61 +26,60 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/tasks', async (req, res) => {
-  console.log('TRYING TO FETCH TASKs');
+app.get('/goals', async (req, res) => {
+  console.log('TRYING TO FETCH GOALS');
   try {
-    const tasks = await Task.find();
+    const goals = await Goal.find();
     res.status(200).json({
-      tasks: tasks.map((task) => ({
-        id: task.id,
-        text: task.text,
-        // ADD MORE PROPERTIES - STATUS
+      goals: goals.map((goal) => ({
+        id: goal.id,
+        text: goal.text,
       })),
     });
-    console.log('FETCHED TASKS');
+    console.log('FETCHED GOALS');
   } catch (err) {
-    console.error('ERROR FETCHING task');
+    console.error('ERROR FETCHING GOALS');
     console.error(err.message);
-    res.status(500).json({ message: 'Failed to load tasks.' });
+    res.status(500).json({ message: 'Failed to load goals.' });
   }
 });
 
-app.post('/tasks', async (req, res) => {
-  console.log('TRYING TO STORE NEW TASK');
-  const taskText = req.body.text;
+app.post('/goals', async (req, res) => {
+  console.log('TRYING TO STORE GOAL');
+  const goalText = req.body.text;
 
-  if (!taskText || taskText.trim().length === 0) {
+  if (!goalText || goalText.trim().length === 0) {
     console.log('INVALID INPUT - NO TEXT');
     return res.status(422).json({ message: 'Invalid goal text.' });
   }
 
-  const task = new Task({
-    text: taskText,
+  const goal = new Goal({
+    text: goalText,
   });
 
   try {
-    await task.save();
+    await goal.save();
     res
       .status(201)
-      .json({ message: 'Task saved', task: { id: task.id, text: taskText } });
-    console.log('STORED NEW TASK');
+      .json({ message: 'Goal saved', goal: { id: goal.id, text: goalText } });
+    console.log('STORED NEW GOAL');
   } catch (err) {
-    console.error('ERROR FETCHING TASKS');
+    console.error('ERROR FETCHING GOALS');
     console.error(err.message);
-    res.status(500).json({ message: 'Failed to save task.' });
+    res.status(500).json({ message: 'Failed to save goal.' });
   }
 });
 
-app.delete('/tasks/:id', async (req, res) => {
-  console.log('TRYING TO DELETE TASK');
+app.delete('/goals/:id', async (req, res) => {
+  console.log('TRYING TO DELETE GOAL');
   try {
-    await Task.deleteOne({ _id: req.params.id });
-    res.status(200).json({ message: 'Deleted task!' });
-    console.log('DELETED TASK');
+    await Goal.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: 'Deleted goal!' });
+    console.log('DELETED GOAL');
   } catch (err) {
-    console.error('ERROR FETCHING TASKS');
+    console.error('ERROR FETCHING GOALS');
     console.error(err.message);
-    res.status(500).json({ message: 'Failed to delete task.' });
+    res.status(500).json({ message: 'Failed to delete goal.' });
   }
 });
 
