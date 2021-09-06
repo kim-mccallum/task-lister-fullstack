@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-import GoalInput from './components/goals/GoalInput';
-import CourseGoals from './components/goals/CourseGoals';
-import ErrorAlert from './components/UI/ErrorAlert';
+import TaskInput from "./components/tasks/TaskInput";
+import Tasks from "./components/tasks/Tasks";
+import ErrorAlert from "./components/UI/ErrorAlert";
 
 function App() {
-  const [loadedGoals, setLoadedGoals] = useState([]);
+  const [loadedTasks, setLoadedTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -14,19 +14,19 @@ function App() {
       setIsLoading(true);
 
       try {
-        const response = await fetch('http://localhost/goals');
+        const response = await fetch("http://localhost/tasks");
 
         const resData = await response.json();
 
         if (!response.ok) {
-          throw new Error(resData.message || 'Fetching the goals failed.');
+          throw new Error(resData.message || "Fetching the tasks failed.");
         }
 
-        setLoadedGoals(resData.goals);
+        setLoadedTasks(resData.tasks);
       } catch (err) {
         setError(
           err.message ||
-            'Fetching goals failed - the server responsed with an error.'
+            "Fetching tasks failed - the server responsed with an error."
         );
       }
       setIsLoading(false);
@@ -35,78 +35,83 @@ function App() {
     fetchData();
   }, []);
 
-  async function addGoalHandler(goalText) {
+  async function addTaskHandler(taskName) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost/goals', {
-        method: 'POST',
+      const response = await fetch("http://localhost/tasks", {
+        method: "POST",
         body: JSON.stringify({
-          text: goalText,
+          name: taskName,
+          complete: "false",
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       const resData = await response.json();
 
       if (!response.ok) {
-        throw new Error(resData.message || 'Adding the goal failed.');
+        throw new Error(resData.message || "Adding the task failed.");
       }
 
-      setLoadedGoals((prevGoals) => {
-        const updatedGoals = [
+      setLoadedTasks((prevTasks) => {
+        const updatedTasks = [
           {
-            id: resData.goal.id,
-            text: goalText,
+            id: resData.task.id,
+            name: taskName,
+            complete: false,
           },
-          ...prevGoals,
+          ...prevTasks,
         ];
-        return updatedGoals;
+        return updatedTasks;
       });
     } catch (err) {
       setError(
         err.message ||
-          'Adding a goal failed - the server responsed with an error.'
+          "Adding a task failed - the server responsed with an error."
       );
     }
     setIsLoading(false);
   }
 
-  async function deleteGoalHandler(goalId) {
+  // ADD A FUNCTION TO UPDATE THE COMPLETE STATUS - IF THE BUTTON IS CLICKED, TOGGLE THIS VALUE
+
+  async function deleteTaskHandler(taskId) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost/goals/' + goalId, {
-        method: 'DELETE',
+      const response = await fetch("http://localhost/tasks/" + taskId, {
+        method: "DELETE",
       });
 
       const resData = await response.json();
 
       if (!response.ok) {
-        throw new Error(resData.message || 'Deleting the goal failed.');
+        throw new Error(resData.message || "Deleting the task failed.");
       }
 
-      setLoadedGoals((prevGoals) => {
-        const updatedGoals = prevGoals.filter((goal) => goal.id !== goalId);
-        return updatedGoals;
+      setLoadedTasks((prevTasks) => {
+        const updatedTasks = prevTasks.filter((task) => task.id !== taskId);
+        return updatedTasks;
       });
     } catch (err) {
       setError(
         err.message ||
-          'Deleting the goal failed - the server responsed with an error.'
+          "Deleting the task failed - the server responsed with an error."
       );
     }
     setIsLoading(false);
   }
+  console.log(loadedTasks);
 
   return (
     <div>
       {error && <ErrorAlert errorText={error} />}
-      <GoalInput onAddGoal={addGoalHandler} />
+      <TaskInput onAddTask={addTaskHandler} />
       {!isLoading && (
-        <CourseGoals goals={loadedGoals} onDeleteGoal={deleteGoalHandler} />
+        <Tasks tasks={loadedTasks} onDeleteTask={deleteTaskHandler} />
       )}
     </div>
   );

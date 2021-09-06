@@ -55,7 +55,7 @@ app.post('/tasks', async (req, res) => {
     return res.status(422).json({ message: 'Invalid task name.' });
   }
   // add validation of taskComplete
-  if (!taskComplete) {
+  if (!taskComplete || taskComplete.trim().length === 0) {
     console.log('INVALID INPUT - NO TASK COMPLETE STATUS');
     return res.status(422).json({ message: 'Invalid task complete status.' });
   }
@@ -77,6 +77,8 @@ app.post('/tasks', async (req, res) => {
     res.status(500).json({ message: 'Failed to save task.' });
   }
 });
+
+//ADD A METHOD TO UPDATE COMPLETE STATUS
 
 app.delete('/tasks/:id', async (req, res) => {
   console.log('TRYING TO DELETE TASK');

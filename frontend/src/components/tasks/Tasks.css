@@ -1,12 +1,12 @@
-#course-goals {
+#tasks {
   text-align: center;
 }
 
-#course-goals h2 {
-  color: #414040;
+#tasks h2 {
+  color: #2b2d42;
 }
 
-#course-goals ul {
+#tasks ul {
   list-style: none;
   margin: 0;
   padding: 0;
